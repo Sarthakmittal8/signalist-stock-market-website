@@ -148,6 +148,9 @@ sequenceDiagram
 Create a `.env.local` file with the following variables:
 
 ```bash
+NODE_ENV='development'
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
 # Database
 MONGODB_URI=mongodb://localhost:27017/signalist
 
@@ -158,6 +161,7 @@ BETTER_AUTH_URL=http://localhost:3000
 # Market Data APIs
 FINNHUB_API_KEY=your-finnhub-api-key
 NEXT_PUBLIC_FINNHUB_API_KEY=your-finnhub-api-key
+FINNHUB_BASE_URL=https://finnhub.io/api/v1
 
 # AI Integration
 GEMINI_API_KEY=your-gemini-api-key
@@ -165,10 +169,6 @@ GEMINI_API_KEY=your-gemini-api-key
 # Email Service
 NODEMAILER_EMAIL=your-gmail@gmail.com
 NODEMAILER_PASSWORD=your-app-password
-
-# Background Jobs
-INNGEST_EVENT_KEY=your-inngest-event-key
-INNGEST_SIGNING_KEY=your-inngest-signing-key
 ```
 
 ## 📱 API Endpoints
