@@ -1108,3 +1108,46 @@ export const INACTIVE_USER_REMINDER_EMAIL_TEMPLATE = `<!DOCTYPE html>
     </table>
 </body>
 </html>`;
+export const STOCK_ALERT_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; padding: 0; background-color: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0f172a; }
+        .header { display: flex; align-items: center; margin-bottom: 30px; }
+        .logo-text { color: #ffffff; font-size: 24px; font-weight: bold; margin: 0; }
+        .logo-icon { color: #3b82f6; margin-right: 10px; }
+        .title { color: #fbbf24; font-size: 22px; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600; }
+        .intro { color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-bottom: 25px; }
+        .alert-box { background-color: #1e293b; border-radius: 8px; padding: 25px; margin: 25px 0; border-left: 4px solid #ef4444; }
+        .alert-list { list-style-type: none; padding: 0; margin: 0; }
+        .footer { color: #94a3b8; font-size: 14px; margin-top: 40px; text-align: center; border-top: 1px solid #1e293b; padding-top: 20px; }
+        .link { color: #3b82f6; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo-text"><span class="logo-icon">📈</span> Signalist</h1>
+        </div>
+        
+        <h2 class="title">🚨 Market Alerts Triggered</h2>
+        
+        <p class="intro">The following market conditions have been met for assets currently tracking on your watchlist:</p>
+        
+        <div class="alert-box">
+            <ul class="alert-list">
+                {{alertsHtml}}
+            </ul>
+        </div>
+        
+        <p class="footer">
+            Log in to your <a href="#" class="link">Signalist dashboard</a> to review these assets and take action.
+        </p>
+    </div>
+</body>
+</html>
+`;

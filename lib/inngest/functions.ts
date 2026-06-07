@@ -1,11 +1,12 @@
-import {inngest} from "@/lib/inngest/client";
-import {NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT} from "@/lib/inngest/prompts";
-import {sendNewsSummaryEmail, sendWelcomeEmail} from "@/lib/nodemailer";
-import {getAllUsersForNewEmail} from "@/lib/actions/user.actions";
-import {getWatchlistSymbolsByEmail} from "@/lib/actions/watchlist.actions";
-import {getNews} from "@/lib/actions/finnhub.actions";
-import {formatDateToday} from "@/lib/utils";
-import {getAllActiveAlerts} from "@/lib/actions/alert.actions";
+import { inngest } from "@/lib/inngest/client";
+import { NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT } from "@/lib/inngest/prompts";
+import { sendNewsSummaryEmail, sendWelcomeEmail, sendStockAlertEmail } from "@/lib/nodemailer";
+// Added getUserById to your imports
+import { getAllUsersForNewEmail, getUserById } from "@/lib/actions/user.actions"; 
+import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions";
+import { getNews } from "@/lib/actions/finnhub.actions";
+import { formatDateToday } from "@/lib/utils";
+import { getAllActiveAlerts } from "@/lib/actions/alert.actions";
 
 export const sendSignUpEmail = inngest.createFunction(
     { id: 'sign-up-email' },
@@ -89,7 +90,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
         }
 
         // Step 3: Placeholder for AI news summarization
-        const userNewsSummaries: { user: User; newsContent: string | null }[] = [];
+        const userNewsSummaries: { user: any; newsContent: string | null }[] = [];
 
         for ( const { user, articles } of results ) {
             let response: any;
@@ -143,7 +144,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
 
 export const checkStockAlerts = inngest.createFunction(
     { id: 'check-stock-alerts' },
-    [ { cron: '*/15 * * * *' } ], // Check every 15 minutes during market hours
+    [ { cron: '*/15 * * * *' } ], 
     async ({ step }) => {
         // Step 1: Get all active alerts
         const alerts = await step.run("get-active-alerts", async () => {
@@ -154,16 +155,7 @@ export const checkStockAlerts = inngest.createFunction(
             return { success: true, message: 'No active alerts to check.' };
         }
 
-        // Step 2: Group alerts by symbol for efficient API calls
-        type Alert = {
-            symbol: string;
-            condition: {
-                type: string;
-                value?: number;
-            };
-            userId: string;
-            // Add other properties as needed
-        };
+        type Alert = { symbol: string; condition: { type: string; value?: number; }; userId: string; user_id?: string; };
         const symbolGroups: Record<string, Alert[]> = {};
         (alerts as Alert[]).forEach((alert: Alert) => {
             if (!symbolGroups[alert.symbol]) {
@@ -172,24 +164,18 @@ export const checkStockAlerts = inngest.createFunction(
             symbolGroups[alert.symbol].push(alert);
         });
 
-        const triggeredAlerts: Array<{
-            alert: typeof alerts[0];
-            message: string;
-            symbol: string;
-            marketData: any;
-        }> = [];
+        const allTriggeredAlerts: any[] = [];
 
         // Step 3: Check each symbol's conditions
         for (const symbol of Object.keys(symbolGroups)) {
             const symbolAlerts = symbolGroups[symbol];
             
-            await step.run(`check-${symbol}`, async () => {
+            const triggeredForSymbol = await step.run(`check-${symbol}`, async () => {
+                const triggers = []; 
                 try {
-                    // Here you would fetch real market data from your API
-                    // For now, we'll use mock data to demonstrate the logic
                     const mockMarketData = {
-                        price: 150 + (Math.random() - 0.5) * 20, // Random price around 150
-                        rsi: Math.random() * 100, // Random RSI
+                        price: 150 + (Math.random() - 0.5) * 20, 
+                        rsi: Math.random() * 100, // Reverted back to random for production
                         volume: Math.random() * 1000000,
                         previousVolume: Math.random() * 800000
                     };
@@ -223,7 +209,6 @@ export const checkStockAlerts = inngest.createFunction(
                                     alertMessage = `${symbol} price ($${mockMarketData.price.toFixed(2)}) is below your target of $${alert.condition.value}`;
                                 }
                                 break;
-                            case 'volume_spike':
                             case 'volume_spike': {
                                 const baseVolume = mockMarketData.previousVolume || 0;
                                 if (baseVolume === 0) break;
@@ -234,61 +219,66 @@ export const checkStockAlerts = inngest.createFunction(
                                 }
                                 break;
                             }
-                                break;
                         }
 
                         if (shouldTrigger) {
-                            triggeredAlerts.push({
-                                alert,
-                                message: alertMessage,
-                                symbol,
-                                marketData: mockMarketData
-                            });
+                            triggers.push({ alert, message: alertMessage, symbol, marketData: mockMarketData });
                         }
                     }
                 } catch (error) {
                     console.error(`Error checking alerts for ${symbol}:`, error);
                 }
+                
+                return triggers; 
             });
+
+            if (triggeredForSymbol && triggeredForSymbol.length > 0) {
+                allTriggeredAlerts.push(...triggeredForSymbol);
+            }
         }
 
         // Step 4: Send alert emails for triggered alerts
-        if (triggeredAlerts.length > 0) {
+        if (allTriggeredAlerts.length > 0) {
             await step.run("send-alert-emails", async () => {
-                // Group by user to send consolidated emails
-                const userAlerts = triggeredAlerts.reduce((acc, { alert, message }) => {
-                    const typedAlert = alert as Alert;
-                    if (!acc[typedAlert.userId]) {
-                        acc[typedAlert.userId] = [];
+                const userAlerts = allTriggeredAlerts.reduce((acc, { alert, message }) => {
+                    const actualUserId = alert.userId || alert.user_id || 'unknown';
+                    
+                    if (!acc[actualUserId]) {
+                        acc[actualUserId] = [];
                     }
-                    acc[typedAlert.userId].push(message);
+                    acc[actualUserId].push(message);
                     return acc;
                 }, {} as Record<string, string[]>);
 
-                // Get user emails and send alerts
                 for (const userId of Object.keys(userAlerts)) {
                     try {
-                        // Here you would get user email from userId
-                        // For demo, we'll just log the alerts
                         console.log(`Alerts for user ${userId}:`, userAlerts[userId]);
                         
-                        // TODO: Send actual email using your email service
-                        // await sendAlertEmail({
-                        //     email: userEmail,
-                        //     alerts: userAlerts[userId]
-                        // });
+                        // Dynamically fetch the user's email from the database
+                        const user = await getUserById(userId);
+                        
+                        if (!user || !user.email) {
+                            console.error(`Could not find email for user ID: ${userId}`);
+                            continue; // Skip if no email is found
+                        }
+
+                        await sendStockAlertEmail({ 
+                            email: user.email, 
+                            alerts: userAlerts[userId] 
+                        });
+                        console.log(`Successfully sent alert email to ${user.email}`);
+
                     } catch (error) {
                         console.error(`Failed to send alert email to user ${userId}:`, error);
                     }
                 }
-
                 return { emailsSent: Object.keys(userAlerts).length };
             });
         }
 
         return {
             success: true,
-            message: `Checked ${alerts.length} alerts, triggered ${triggeredAlerts.length} notifications`
+            message: `Checked ${alerts.length} alerts, triggered ${allTriggeredAlerts.length} notifications`
         };
     }
-)
+);
