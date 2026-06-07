@@ -1,12 +1,24 @@
-# 📈 Signalist Stock Market Website
+<div align="center">
+  <br />
+    <img src="https://raw.githubusercontent.com/saadat-khan/Signalist_stock-tracker-app/cfec8288fdcc99d5ff68f5745a694f860298f2cf/Banner.svg" width="100%">
+  <br />
 
-A modern, full-stack stock tracking application built with Next.js 15, featuring real-time market data, personalized watchlists, AI-powered insights, and automated email notifications. Track your favorite stocks with professional-grade charts, technical analysis, and market news.
+  <div>
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+    <img src="https://img.shields.io/badge/Shadcn-18181B?style=for-the-badge&logo=react&logoColor=white" />
+    <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+    <img src="https://img.shields.io/badge/Inngest-4C51BF?style=for-the-badge&logo=serverless&logoColor=white" />
+    <img src="https://img.shields.io/badge/Better%20Auth-1A73E8?style=for-the-badge&logo=auth0&logoColor=white" />
+    <img src="https://img.shields.io/badge/Finnhub-0C7D5B?style=for-the-badge&logo=databricks&logoColor=white" />
+  </div>
 
-![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)
-![React](https://img.shields.io/badge/React-19.1.0-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-green)
-![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC)
+  <h3 align="center">🚀 Signalist Stock Market Website – AI-Powered Stock Market App</h3>
+  <p align="center">Modern real-time financial platform with alerts, charts, watchlists, and AI insights</p>
+</div>
+
+---
 
 ## 🚀 Features
 
@@ -250,3 +262,9 @@ Ensure all environment variables are properly set in your production environment
 - API keys for all external services
 - Email service credentials
 - Background job authentication
+
+## <a name="license">📜 License</a>
+
+This project is licensed under the MIT License.
+See [LICENSE](LICENSE)
+ for more details.
