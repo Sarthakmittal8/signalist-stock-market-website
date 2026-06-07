@@ -1,4 +1,4 @@
-# 📈 Signalist Stock Tracker
+# 📈 Signalist Stock Market Website
 
 A modern, full-stack stock tracking application built with Next.js 15, featuring real-time market data, personalized watchlists, AI-powered insights, and automated email notifications. Track your favorite stocks with professional-grade charts, technical analysis, and market news.
 
